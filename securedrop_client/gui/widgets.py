@@ -58,6 +58,7 @@ from PyQt5.QtWidgets import (
     QToolButton,
     QVBoxLayout,
     QWidget,
+    QCheckBox,
 )
 
 from securedrop_client.db import (
@@ -2616,8 +2617,13 @@ class ExportDialog(ModalDialog):
         effect.setBlurRadius(4)
         effect.setColor(QColor("#aaa"))
         self.passphrase_field.setGraphicsEffect(effect)
+
+        self.checkbox = QCheckBox("Show Passphrase", self)
+        self.checkbox.stateChanged.connect(self.passphrase_field.on_toggle_password_Action)
+
         passphrase_form_layout.addWidget(passphrase_label)
         passphrase_form_layout.addWidget(self.passphrase_field)
+        passphrase_form_layout.addWidget(self.checkbox, alignment=Qt.AlignRight)
         self.body_layout.addWidget(self.passphrase_form)
         self.passphrase_form.hide()
 
