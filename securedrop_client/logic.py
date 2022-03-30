@@ -549,7 +549,7 @@ class Controller(QObject):
 
     def on_authenticate_failure(self, result: Exception) -> None:
         # Failed to authenticate. Reset state with failure message.
-        self.invalidate_token()
+        self._deauthenticate_user_locally()
 
         if isinstance(result, (RequestTimeoutError, ServerConnectionError)):
             error = _(
@@ -647,7 +647,7 @@ class Controller(QObject):
             ):
                 self.update_authenticated_user.emit(self.authenticated_user)
         except sqlalchemy.orm.exc.ObjectDeletedError:
-            self._close_client_session()
+            self._expire_user_session()
 
         self.resume_queues()
 
@@ -664,14 +664,14 @@ class Controller(QObject):
             if not self.is_authenticated or not self.api:
                 return
 
-            self._close_client_session()
+            self._expire_user_session()
         elif isinstance(result, (RequestTimeoutError, ServerConnectionError)):
             self.gui.update_error_status(
                 _("The SecureDrop server cannot be reached. Trying to reconnect..."), duration=0
             )
 
-    def _close_client_session(self) -> None:
-        self.invalidate_token()
+    def _expire_user_session(self) -> None:
+        self._deauthenticate_user_locally()
         self.logout()
         self.gui.show_login(error=_("Your session expired. Please log in again."))
 
@@ -772,7 +772,7 @@ class Controller(QObject):
 
         if self.api is not None:
             self.call_api(self.api.logout, self.on_logout_success, self.on_logout_failure)
-            self.invalidate_token()
+            self._deauthenticate_user_locally()
 
         failed_replies = storage.mark_all_pending_drafts_as_failed(self.session)
         for failed_reply in failed_replies:
@@ -786,7 +786,7 @@ class Controller(QObject):
         self.show_last_sync()
         self.is_authenticated = False
 
-    def invalidate_token(self) -> None:
+    def _deauthenticate_user_locally(self) -> None:
         self.api = None
         self.authenticated_user = None
 

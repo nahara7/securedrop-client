@@ -553,13 +553,13 @@ def test_Controller_on_sync_success_when_current_user_deleted(mocker, homedir):
     co.gui.logout.assert_called_once_with()
 
 
-def test_Controller__close_client_session(mocker, homedir):
+def test_Controller__expire_user_session(mocker, homedir):
     co = Controller("http://localhost", mocker.MagicMock(), mocker.MagicMock(), homedir, None)
     co.authenticated_user = factory.User(username="foo")
     co.api = "not None"
     co.gui = mocker.MagicMock()
 
-    co._close_client_session()
+    co._expire_user_session()
 
     assert co.authenticated_user is None
     assert co.api is None
@@ -1002,14 +1002,14 @@ def test_Controller_on_update_star_failed_due_to_timeout(homedir, config, mocker
     gui.update_error_status.assert_not_called()
 
 
-def test_Controller_invalidate_token(mocker, homedir, session_maker):
+def test_Controller__deauthenticate_user_locally(mocker, homedir, session_maker):
     """
     Ensure the controller's api token is set to None.
     """
     co = Controller("http://localhost", mocker.MagicMock(), session_maker, homedir, None)
     co.api = "not None"
 
-    co.invalidate_token()
+    co._deauthenticate_user_locally()
 
     assert co.api is None
 
