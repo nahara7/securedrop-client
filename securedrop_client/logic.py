@@ -772,7 +772,8 @@ class Controller(QObject):
 
         if self.api is not None:
             self.call_api(self.api.logout, self.on_logout_success, self.on_logout_failure)
-            self._deauthenticate_user_locally()
+
+        self._deauthenticate_user_locally()
 
         failed_replies = storage.mark_all_pending_drafts_as_failed(self.session)
         for failed_reply in failed_replies:
