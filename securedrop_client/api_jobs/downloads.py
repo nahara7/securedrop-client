@@ -254,8 +254,7 @@ class ReplyDownloadJob(DownloadJob):
         """
         Override DownloadJob.
         """
-        sdk_object = SdkReply(uuid=db_object.uuid, filename=db_object.filename)
-        sdk_object.source_uuid = db_object.source.uuid
+        sdk_object = SdkReply(uuid=db_object.uuid, source_uuid=db_object.source.uuid)
 
         # TODO: Once https://github.com/freedomofpress/securedrop-sdk/issues/108 is implemented, we
         # will want to pass the default request timeout to download_reply instead of setting it on
@@ -310,7 +309,7 @@ class MessageDownloadJob(DownloadJob):
         """
         Override DownloadJob.
         """
-        sdk_object = SdkSubmission(uuid=db_object.uuid)
+        sdk_object = SdkSubmission(uuid=db_object.uuid, source_uuid=db_object.source.uuid)
         sdk_object.source_uuid = db_object.source.uuid
         sdk_object.filename = db_object.filename
         return api.download_submission(
